@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "DM Serif Display";
+  src: url("/assets/fonts/DMSerifDisplay-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/fonts/PlusJakartaSans-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Navy finance palette */
+    --background: 0.98 0.003 250;
+    --foreground: 0.18 0.02 255;
+
+    --card: 1 0 0;
+    --card-foreground: 0.18 0.02 255;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.18 0.02 255;
+
+    --primary: 0.32 0.12 255;
+    --primary-foreground: 1 0 0;
+
+    --secondary: 0.95 0.008 250;
+    --secondary-foreground: 0.28 0.08 255;
+
+    --muted: 0.95 0.005 250;
+    --muted-foreground: 0.52 0.025 255;
+
+    --accent: 0.93 0.012 250;
+    --accent-foreground: 0.28 0.08 255;
+
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 1 0 0;
+
+    --border: 0.88 0.012 255;
+    --input: 0.88 0.012 255;
+    --ring: 0.32 0.12 255;
+
+    --radius: 0.375rem;
+
+    /* Finance semantic tokens */
+    --positive: 0.52 0.16 155;
+    --negative: 0.52 0.2 25;
+    --neutral: 0.52 0.025 255;
+    --amber: 0.7 0.15 60;
+
+    /* Nav */
+    --nav-bg: 0.18 0.04 258;
+    --nav-fg: 0.96 0.01 250;
+
+    --chart-1: 0.55 0.18 255;
+    --chart-2: 0.52 0.16 155;
+    --chart-3: 0.65 0.18 55;
+    --chart-4: 0.55 0.2 340;
+    --chart-5: 0.58 0.16 200;
+
+    --sidebar: 0.97 0.005 250;
+    --sidebar-foreground: 0.18 0.02 255;
+    --sidebar-primary: 0.32 0.12 255;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.93 0.012 250;
+    --sidebar-accent-foreground: 0.28 0.08 255;
+    --sidebar-border: 0.88 0.012 255;
+    --sidebar-ring: 0.32 0.12 255;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Plus Jakarta Sans", "system-ui", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Finance-specific utilities */
+@layer utilities {
+  .text-positive {
+    color: oklch(var(--positive));
+  }
+  .text-negative {
+    color: oklch(var(--negative));
+  }
+  .bg-nav {
+    background-color: oklch(var(--nav-bg));
+  }
+  .text-nav {
+    color: oklch(var(--nav-fg));
+  }
+  .font-mono-data {
+    font-family: "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .table-row-hover {
+    @apply hover:bg-accent/60 transition-colors cursor-pointer;
+  }
+}
