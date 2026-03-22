@@ -36,6 +36,7 @@ import CashFlow from "../components/CashFlow";
 import DocumentsSection from "../components/DocumentsSection";
 import FinancialTrendChart from "../components/FinancialTrendChart";
 import HealthScore from "../components/HealthScore";
+import InsightsPanel from "../components/InsightsPanel";
 import PriceChart from "../components/PriceChart";
 import ProfitLossStatement from "../components/ProfitLossStatement";
 import RatioCard from "../components/RatioCard";
@@ -430,6 +431,9 @@ export default function CompanyPage() {
             <TabsTrigger value="ratios" data-ocid="company.ratios.tab">
               Ratios
             </TabsTrigger>
+            <TabsTrigger value="insights" data-ocid="company.insights.tab">
+              Insights
+            </TabsTrigger>
             <TabsTrigger
               value="shareholding"
               data-ocid="company.shareholding.tab"
@@ -601,6 +605,10 @@ export default function CompanyPage() {
                 No ratios data available.
               </p>
             )}
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <InsightsPanel symbol={symbol} />
           </TabsContent>
 
           <TabsContent value="shareholding">

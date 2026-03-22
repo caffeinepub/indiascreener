@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import { getBSData } from "../data/balanceSheetData";
 import { getCFData } from "../data/cashFlowData";
 import { getCompany } from "../data/companiesData";
+import { getInsightsData } from "../data/insightsData";
 import { getPLData } from "../data/plData";
 import { getRatiosData } from "../data/ratiosData";
 
@@ -58,7 +59,7 @@ export function exportFinancialModel(symbol: string): void {
 
   const wb = XLSX.utils.book_new();
 
-  // ── Sheet 1: Company Overview ──────────────────────────────────────────────
+  // ── Sheet 1: Company Overview ─────────────────────────────────────────────
   const overviewData: (string | number)[][] = [
     ["Company Financial Model", ""],
     ["IndiaScreener — Analyst Grade Export", ""],
@@ -122,7 +123,7 @@ export function exportFinancialModel(symbol: string): void {
   setColWidths(wsOverview, [32, 24, 14, 14]);
   XLSX.utils.book_append_sheet(wb, wsOverview, "Company Overview");
 
-  // ── Sheet 2: Profit & Loss ─────────────────────────────────────────────────
+  // ── Sheet 2: Profit & Loss ───────────────────────────────────────────────
   if (pl?.periods?.length) {
     const periods = pl.periods;
     const plHeader = ["", ...periods.map((p) => p.period)];
@@ -146,7 +147,6 @@ export function exportFinancialModel(symbol: string): void {
 
     const wsPL = XLSX.utils.aoa_to_sheet(plRows);
     styleHeaderRow(wsPL, 0, numCols);
-    // Bold section header rows: Revenue, Operating Profit, Net Profit
     boldRow(wsPL, 1, numCols); // Revenue
     boldRow(wsPL, 3, numCols); // Operating Profit
     boldRow(wsPL, 8, numCols); // Profit Before Tax
@@ -157,7 +157,7 @@ export function exportFinancialModel(symbol: string): void {
     XLSX.utils.book_append_sheet(wb, wsPL, "Profit & Loss");
   }
 
-  // ── Sheet 3: Balance Sheet ─────────────────────────────────────────────────
+  // ── Sheet 3: Balance Sheet ───────────────────────────────────────────────
   if (bs?.periods?.length) {
     const periods = bs.periods;
     const bsHeader = ["", ...periods.map((p) => p.period)];
@@ -191,7 +191,7 @@ export function exportFinancialModel(symbol: string): void {
     XLSX.utils.book_append_sheet(wb, wsBS, "Balance Sheet");
   }
 
-  // ── Sheet 4: Cash Flow ─────────────────────────────────────────────────────
+  // ── Sheet 4: Cash Flow ───────────────────────────────────────────────────
   if (cf?.periods?.length) {
     const periods = cf.periods;
     const cfHeader = ["", ...periods.map((p) => p.period)];
@@ -214,7 +214,7 @@ export function exportFinancialModel(symbol: string): void {
     XLSX.utils.book_append_sheet(wb, wsCF, "Cash Flow");
   }
 
-  // ── Sheet 5: Key Ratios ────────────────────────────────────────────────────
+  // ── Sheet 5: Key Ratios ──────────────────────────────────────────────────────
   if (ratios?.periods?.length) {
     const periods = ratios.periods;
     const ratHeader = ["", ...periods.map((p) => p.period)];
@@ -238,6 +238,35 @@ export function exportFinancialModel(symbol: string): void {
     XLSX.utils.book_append_sheet(wb, wsRat, "Key Ratios");
   }
 
-  // ── Write file ─────────────────────────────────────────────────────────────
+  // ── Sheet 6: Operational Insights ──────────────────────────────────────────────
+  const insights = getInsightsData(symbol);
+  if (insights?.metrics?.length) {
+    const allPeriods = [
+      ...new Set(
+        insights.metrics.flatMap((metric) =>
+          metric.periods.map((p) => p.period),
+        ),
+      ),
+    ];
+    const insHeader = ["Metric", "Unit", ...allPeriods];
+    const insRows: (string | number | null)[][] = [insHeader];
+    for (const metric of insights.metrics) {
+      const valueMap = Object.fromEntries(
+        metric.periods.map((p) => [p.period, p.value]),
+      );
+      insRows.push([
+        metric.label,
+        metric.unit,
+        ...allPeriods.map((p) => valueMap[p] ?? null),
+      ]);
+    }
+    const wsIns = XLSX.utils.aoa_to_sheet(insRows);
+    styleHeaderRow(wsIns, 0, insHeader.length);
+    setColWidths(wsIns, [32, 12, ...Array(allPeriods.length).fill(14)]);
+    freezePane(wsIns);
+    XLSX.utils.book_append_sheet(wb, wsIns, "Operational Insights");
+  }
+
+  // ── Write file ─────────────────────────────────────────────────────────────────────
   XLSX.writeFile(wb, `${symbol}_FinancialModel_IndiaScreener.xlsx`);
 }
