@@ -32,9 +32,11 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import BalanceSheet from "../components/BalanceSheet";
+import BalanceSheetSnapshot from "../components/BalanceSheetSnapshot";
 import CashFlow from "../components/CashFlow";
 import DocumentsSection from "../components/DocumentsSection";
 import FinancialTrendChart from "../components/FinancialTrendChart";
+import FundFlowAnalysis from "../components/FundFlowAnalysis";
 import HealthScore from "../components/HealthScore";
 import InsightsPanel from "../components/InsightsPanel";
 import PriceChart from "../components/PriceChart";
@@ -428,6 +430,9 @@ export default function CompanyPage() {
             <TabsTrigger value="cash-flow" data-ocid="company.cash_flow.tab">
               Cash Flow
             </TabsTrigger>
+            <TabsTrigger value="fund-flow" data-ocid="company.fund_flow.tab">
+              Fund Flow
+            </TabsTrigger>
             <TabsTrigger value="ratios" data-ocid="company.ratios.tab">
               Ratios
             </TabsTrigger>
@@ -578,6 +583,7 @@ export default function CompanyPage() {
           </TabsContent>
 
           <TabsContent value="balance-sheet">
+            <BalanceSheetSnapshot symbol={symbol} />
             {bsData ? (
               <BalanceSheet data={bsData} />
             ) : (
@@ -595,6 +601,10 @@ export default function CompanyPage() {
                 No cash flow data available.
               </p>
             )}
+          </TabsContent>
+
+          <TabsContent value="fund-flow">
+            <FundFlowAnalysis symbol={symbol} />
           </TabsContent>
 
           <TabsContent value="ratios">

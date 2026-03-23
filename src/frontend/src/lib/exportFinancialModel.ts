@@ -5,6 +5,7 @@ import { getCompany } from "../data/companiesData";
 import { getInsightsData } from "../data/insightsData";
 import { getPLData } from "../data/plData";
 import { getRatiosData } from "../data/ratiosData";
+import { computeFundFlow } from "./fundFlow";
 
 // Helper: set column widths on a worksheet
 function setColWidths(ws: XLSX.WorkSheet, widths: number[]) {
@@ -163,7 +164,44 @@ export function exportFinancialModel(symbol: string): void {
     const bsHeader = ["", ...periods.map((p) => p.period)];
     const numCols = bsHeader.length;
 
+    const latestPeriod = bs.periods.filter((p) => p.period !== "TTM").at(-1);
+    const snapshotRows: (string | number)[][] = [];
+    if (latestPeriod) {
+      snapshotRows.push(
+        ["BALANCE SHEET SNAPSHOT", `as of ${latestPeriod.period}`, "", ""],
+        ["", "", "", ""],
+        ["ASSETS", "Value (₹ Cr)", "LIABILITIES", "Value (₹ Cr)"],
+        [
+          "Net Block",
+          latestPeriod.fixedAssets,
+          "Equity",
+          latestPeriod.equityCapital + latestPeriod.reserves,
+        ],
+        [
+          "CWIP",
+          latestPeriod.cwip,
+          "Debt (Borrowings)",
+          latestPeriod.borrowings,
+        ],
+        [
+          "Investments",
+          latestPeriod.investments,
+          "Other Liabilities",
+          latestPeriod.otherLiabilities,
+        ],
+        ["Other Assets", latestPeriod.otherAssets, "", ""],
+        [
+          "Total Assets",
+          latestPeriod.totalAssets,
+          "Total Liabilities",
+          latestPeriod.totalLiabilities,
+        ],
+        ["", "", "", ""],
+      );
+    }
+
     const bsRows: (string | number)[][] = [
+      ...snapshotRows,
       bsHeader,
       ["LIABILITIES", ...periods.map(() => "")],
       ["Equity Capital", ...periods.map((p) => p.equityCapital)],
@@ -266,6 +304,24 @@ export function exportFinancialModel(symbol: string): void {
     freezePane(wsIns);
     XLSX.utils.book_append_sheet(wb, wsIns, "Operational Insights");
   }
+
+  // ── Sheet 7: Fund Flow ──────────────────────────────────────────────────────
+  const ffRanges = ["1Y", "3Y", "5Y"] as const;
+  const ffRows: unknown[][] = [["Period", "Item", "Side", "Value (₹ Cr)"]];
+  for (const r of ffRanges) {
+    const ff = computeFundFlow(symbol, r);
+    if (!ff) continue;
+    for (const s of ff.sources) {
+      ffRows.push([ff.periodLabel, s.label, "Source", s.value]);
+    }
+    for (const u of ff.uses) {
+      ffRows.push([ff.periodLabel, u.label, "Use", u.value]);
+    }
+  }
+  const ffSheet = XLSX.utils.aoa_to_sheet(ffRows);
+  styleHeaderRow(ffSheet, 0, 4);
+  setColWidths(ffSheet, [28, 32, 10, 16]);
+  XLSX.utils.book_append_sheet(wb, ffSheet, "Fund Flow");
 
   // ── Write file ─────────────────────────────────────────────────────────────────────
   XLSX.writeFile(wb, `${symbol}_FinancialModel_IndiaScreener.xlsx`);

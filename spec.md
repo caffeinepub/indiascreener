@@ -1,25 +1,27 @@
 # IndiaScreener
 
 ## Current State
-The app has CompanyPage with tabs: Financials, Balance Sheet, Cash Flow, Ratios, Shareholding, Health Score, Documents, Peers. exportFinancialModel.ts generates 5 sheets. No Insights tab exists.
+CompanyPage has a Balance Sheet tab rendering the `<BalanceSheet>` table component. The `balanceSheetData.ts` file already contains all needed BS fields. `exportFinancialModel.ts` has Sheet 3 for Balance Sheet with a year-wise table.
 
 ## Requested Changes (Diff)
 
 ### Add
-- `src/frontend/src/data/insightsData.ts` — operational KPI data for all 25 companies with realistic approximate values (FY2019–FY2024+TTM). Yearly data only. Sector-specific metrics per spec.
-- `src/frontend/src/components/InsightsPanel.tsx` — table component showing metrics across years. No quarterly toggle (hidden). Disclaimer footer. Flag error button.
-- Insights tab in CompanyPage between Ratios and Health Score.
-- Sheet 6 "Operational Insights" in exportFinancialModel.ts.
+- `src/frontend/src/components/BalanceSheetSnapshot.tsx` — treemap visualization component showing Assets and Liabilities side by side using Recharts Treemap
 
 ### Modify
-- `src/frontend/src/pages/CompanyPage.tsx` — add Insights tab trigger and content, import InsightsPanel.
-- `src/frontend/src/lib/exportFinancialModel.ts` — add Sheet 6 using insightsData.
+- `src/frontend/src/pages/CompanyPage.tsx` — add `<BalanceSheetSnapshot>` above `<BalanceSheet>` inside the existing `balance-sheet` TabsContent
+- `src/frontend/src/lib/exportFinancialModel.ts` — prepend a snapshot summary block (4-column: Assets | Value | Liabilities | Value) to Sheet 3 before the period table
 
 ### Remove
-- Nothing.
+- Nothing removed
 
 ## Implementation Plan
-1. Create insightsData.ts with all 25 companies, realistic approximate values, yearly periods FY2019–FY2024+TTM.
-2. Create InsightsPanel.tsx component (no quarterly toggle, disclaimer footer).
-3. Edit CompanyPage.tsx to add Insights tab between Ratios and Health Score.
-4. Edit exportFinancialModel.ts to append Sheet 6 Operational Insights.
+1. Create `BalanceSheetSnapshot.tsx` with:
+   - `buildAssets()` mapping fixedAssets, cwip, investments, otherAssets splits to TreeNodes with green/red colors
+   - `buildLiabilities()` mapping equity, borrowings, otherLiabilities splits to TreeNodes
+   - `CustomCell` SVG renderer for treemap tiles with label/value text
+   - `SnapshotTooltip` for hover details
+   - Two side-by-side `<Treemap>` panels inside `<ResponsiveContainer>`
+   - Legend and disclaimer footnote
+2. Edit `CompanyPage.tsx` to import and render `<BalanceSheetSnapshot symbol={symbol} />` above `<BalanceSheet>` in the balance-sheet tab
+3. Edit `exportFinancialModel.ts` Sheet 3 to prepend 9-row snapshot summary block using latest non-TTM period before the existing year-wise rows
